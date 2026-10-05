@@ -16,6 +16,8 @@ public class StaticData : MonoBehaviour
 
     public static AudioSource MusicSource;
 
+    public static AdController adController;
+
     [RuntimeInitializeOnLoadMethod]
     static void Init()
     {

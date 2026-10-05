@@ -1,89 +1,143 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Advertisements;
-//using UnityEngine.
+using Unity.Services.LevelPlay;
+using System;
 
 
-public class AdController : MonoBehaviour/*, IUnityAdsInitializationListener, IUnityAdsLoadListener, IUnityAdsShowListener */
-{/*
-    private static bool WasError = false;
-    [SerializeField] string _androidGameId;
-    [SerializeField] bool _testMode = true;
-    private string _gameId;
-    [SerializeField] string _androidAdUnitId = "Interstitial_Android";
-    string _adUnitId;
+public class AdController : MonoBehaviour
+{
+    private string interstitialAdUnitId = "pwkamvcrm7p6v1z8"; //
+    LevelPlayInterstitialAd interstitialAd;
 
+    private float adTimer;
+    private static bool initialized;
+    private static bool _initCallbackHandled;
 
-    void Awake()
+    private IGameController currentGameController;
+
+    public void Start()
     {
-        //DontDestroyOnLoad(gameObject);
-        InitializeAds();
-        _adUnitId = _androidAdUnitId;
+        DontDestroyOnLoad(gameObject);
+        //InitAd();
     }
 
-    public void InitializeAds()
+    private void Update()
     {
-        _gameId = _androidGameId;
-        if (!Advertisement.isInitialized && Advertisement.isSupported)
-        {
-            Advertisement.Initialize(_gameId, _testMode, this);
-        }
+        adTimer += Time.deltaTime;
     }
 
-    public void OnInitializationComplete()
+    public void InitAd()
     {
-        Debug.Log("Unity Ads initialization complete.");
+        if (initialized) return;
+        initialized = true;
+
+        Debug.Log("Ad iniatilization");
+        LevelPlay.OnInitSuccess += SdkInitializationCompletedEvent;
+        LevelPlay.OnInitFailed += SdkInitializationFailedEvent;
+        LevelPlay.Init("21c5114bd"); //
+    }
+
+    public void InitGameController(IGameController controller)
+    {
+        currentGameController = controller;
+    }
+
+    public void ClearGameController()
+    {
+        currentGameController = null;
+    }
+
+    void SdkInitializationCompletedEvent(LevelPlayConfiguration levelPlayConfiguration)
+    {
+        if (_initCallbackHandled) return;
+        _initCallbackHandled = true;
+
+        Debug.Log("Ad Init Seccessfel");
         LoadAd();
     }
 
-    public void OnInitializationFailed(UnityAdsInitializationError error, string message)
+    void SdkInitializationFailedEvent(LevelPlayInitError levelPlayInitError)
     {
-        Debug.Log($"Unity Ads Initialization Failed: {error.ToString()} - {message}");
-        InitializeAds();
+        Debug.Log("Ad Init failed");
     }
 
-    public void LoadAd()
+    private void LoadAd()
     {
-        // IMPORTANT! Only load content AFTER initialization (in this example, initialization is handled in a different script).
-        Debug.Log("Loading Ad: " + _adUnitId);
-        Advertisement.Load(_adUnitId, this);
+        Debug.Log("Ad loading");
+
+        ResetAdTimer();
+        if (interstitialAd != null)
+        {
+            interstitialAd.DestroyAd();
+            interstitialAd = null;
+        }
+
+        /*var configBuilder = new LevelPlayInterstitialAd.Config.Builder();
+        configBuilder.SetBidFloor(0.6); // Minimum bid price in USD
+        var isConfig = configBuilder.Build();
+
+        interstitialAd = new LevelPlayInterstitialAd(interstitialAdUnitId, isConfig);*/
+
+        interstitialAd = new LevelPlayInterstitialAd(interstitialAdUnitId);
+
+        interstitialAd.OnAdLoaded += InterstitialOnAdLoadedEvent;
+        interstitialAd.OnAdLoadFailed += InterstitialOnAdLoadFailedEvent;
+        interstitialAd.OnAdDisplayed += InterstitialOnAdDisplayedEvent;
+        interstitialAd.OnAdDisplayFailed += InterstitialOnAdDisplayFailedEvent;
+        interstitialAd.OnAdClicked += InterstitialOnAdClickedEvent;
+        interstitialAd.OnAdClosed += InterstitialOnAdClosedEvent;
+        interstitialAd.OnAdInfoChanged += InterstitialOnAdInfoChangedEvent;
+
+        interstitialAd.LoadAd();
     }
 
     public void ShowAd()
     {
-        // Note that if the ad content wasn't previously loaded, this method will fail
-        Debug.Log("Showing Ad: " + _adUnitId);
-        Advertisement.Show(_adUnitId, this);
+        Debug.Log("Ad opening");
+        interstitialAd.ShowAd();
+        Time.timeScale = 0f;
     }
 
-    public void OnUnityAdsAdLoaded(string adUnitId)
+    void InterstitialOnAdLoadedEvent(LevelPlayAdInfo adInfo)
     {
-        Debug.Log("Ad Loaded: " + adUnitId);
-
-        if (adUnitId.Equals(_adUnitId))
-        {
-            //AdLoaded = true;
-        }
+        //ShowAd();
+        Debug.Log("Ad loaded");
     }
-
-    public void OnUnityAdsFailedToLoad(string _adUnitId, UnityAdsLoadError error, string message)
+    void InterstitialOnAdLoadFailedEvent(LevelPlayAdError error) 
     {
-        Debug.Log($"Error loading Ad Unit: {_adUnitId} - {error.ToString()} - {message}");
+        Debug.Log("Ad loading failed " + error.ErrorCode + " " + error.ErrorMessage);
         LoadAd();
     }
-
-    public void OnUnityAdsShowFailure(string _adUnitId, UnityAdsShowError error, string message)
+    void InterstitialOnAdDisplayedEvent(LevelPlayAdInfo adInfo) 
     {
-        Debug.Log($"Error showing Ad Unit {_adUnitId}: {error.ToString()} - {message}");
+        Debug.Log("Ad Opened");
+    }
+    void InterstitialOnAdDisplayFailedEvent(LevelPlayAdInfo adInfo, LevelPlayAdError error)
+    {
+        Debug.Log("Ad failed to open");
+        StartCoroutine(currentGameController.OnOverDelay());
+        Time.timeScale = 1f;
+        //LoadAd();
+        Invoke(nameof(LoadAd), 5f);
+    }
+    void InterstitialOnAdClickedEvent(LevelPlayAdInfo adInfo) { }
+    void InterstitialOnAdClosedEvent(LevelPlayAdInfo adInfo) 
+    {
+        Debug.Log("Ad Closed");
+        StartCoroutine(currentGameController.OnOverDelay());
+        Time.timeScale = 1f;
         LoadAd();
     }
+    void InterstitialOnAdInfoChangedEvent(LevelPlayAdInfo adInfo) { }
 
-    public void OnUnityAdsShowStart(string _adUnitId) { }
-    public void OnUnityAdsShowClick(string _adUnitId) { }
-    public void OnUnityAdsShowComplete(string _adUnitId, UnityAdsShowCompletionState showCompletionState)
+    public float GetAdTimer()
     {
-        LoadAd();
-        SC.Continue();
-    }*/
+        return adTimer;
+    }
+
+    public void ResetAdTimer()
+    {
+        adTimer = 0;
+    }
 }

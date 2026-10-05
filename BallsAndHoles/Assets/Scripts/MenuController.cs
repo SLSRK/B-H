@@ -10,6 +10,7 @@ public class MenuController : MonoBehaviour
 {
     private static MenuController instance;
     private AsyncOperation loadingSceneOperation;
+    public AdController adController;
     public AudioSource Err;
     public AudioSource[] OtherSounds;
     public AudioSource MusicSource;
@@ -83,11 +84,15 @@ public class MenuController : MonoBehaviour
             LoadSaved();
             DontDestroyOnLoad(MusicSource);
             StaticData.MusicSource = MusicSource;
+            adController.InitAd();
+            StaticData.adController = adController;
         }
         else
         {
             Destroy(MusicSource.gameObject);
             MusicSource = StaticData.MusicSource;
+            Destroy(adController.gameObject);
+            adController = StaticData.adController;
         }
         StaticData.isOpened = true;
         Application.targetFrameRate = 120;
@@ -155,13 +160,15 @@ public class MenuController : MonoBehaviour
             BCurrID = 0;
             BNameTextField.text = StaticData.BallSkins[0].name;
             BL.GetComponent<Button>().enabled = false;
-            BL.GetComponent<Image>().color = Color.grey;
+            //BL.GetComponent<Image>().color = Color.grey;
+            BL.GetComponent<CanvasGroup>().alpha = 0.3f;
             StaticData.WallSkinsID[0] = 2;
             WallExample.GetComponent<MeshRenderer>().material = StaticData.WallSkins[0];
             WCurrID = 0;
             WNameTextField.text = StaticData.WallSkins[0].name;
             WL.GetComponent<Button>().enabled = false;
-            WL.GetComponent<Image>().color = Color.grey;
+            //WL.GetComponent<Image>().color = Color.grey;
+            WL.GetComponent<CanvasGroup>().alpha = 0.3f;
         }
         else
         {
@@ -175,12 +182,14 @@ public class MenuController : MonoBehaviour
                     if (i == 0)
                     {
                         BL.GetComponent<Button>().enabled = false;
-                        BL.GetComponent<Image>().color = Color.grey;
+                        //BL.GetComponent<Image>().color = Color.grey;
+                        BL.GetComponent<CanvasGroup>().alpha = 0.3f;
                     }
                     else if (i == StaticData.BallSkinsID.Length - 1)
                     {
                         BR.GetComponent<Button>().enabled = false;
-                        BR.GetComponent<Image>().color = Color.grey;
+                        //BR.GetComponent<Image>().color = Color.grey;
+                        BR.GetComponent<CanvasGroup>().alpha = 0.3f;
                     }
                 }
                 else if (StaticData.BallSkinsID[i] == 0 && BallSkinReq[i])
@@ -204,12 +213,14 @@ public class MenuController : MonoBehaviour
                     if (i == 0)
                     {
                         WL.GetComponent<Button>().enabled = false;
-                        WL.GetComponent<Image>().color = Color.grey;
+                        //WL.GetComponent<Image>().color = Color.grey;
+                        WL.GetComponent<CanvasGroup>().alpha = 0.3f;
                     }
                     else if (i == StaticData.WallSkinsID.Length - 1)
                     {
                         WR.GetComponent<Button>().enabled = false;
-                        WR.GetComponent<Image>().color = Color.grey;
+                        //WR.GetComponent<Image>().color = Color.grey;
+                        WR.GetComponent<CanvasGroup>().alpha = 0.3f;
                     }
                 }
                 else if (StaticData.WallSkinsID[i] == 0 && WallSkinReq[i])
@@ -348,22 +359,26 @@ public class MenuController : MonoBehaviour
         if (BCurrID == 0)
         {
             BL.GetComponent<Button>().enabled = false;
-            BL.GetComponent<Image>().color = Color.grey;
+            //BL.GetComponent<Image>().color = Color.grey;
+            BL.GetComponent<CanvasGroup>().alpha = 0.3f;
         }
         else
         {
             BL.GetComponent<Button>().enabled = true;
-            BL.GetComponent<Image>().color = Color.black;
+            //BL.GetComponent<Image>().color = Color.black;
+            BL.GetComponent<CanvasGroup>().alpha = 1f;
         }
         if (BCurrID == StaticData.BallSkinsID.Length - 1)
         {
             BR.GetComponent<Button>().enabled = false;
-            BR.GetComponent<Image>().color = Color.grey;
+            //BR.GetComponent<Image>().color = Color.grey;
+            BR.GetComponent<CanvasGroup>().alpha = 0.3f;
         }
         else
         {
             BR.GetComponent<Button>().enabled = true;
-            BR.GetComponent<Image>().color = Color.black;
+            //BR.GetComponent<Image>().color = Color.black;
+            BR.GetComponent<CanvasGroup>().alpha = 1f;
         }
         if(BIDOpened.Count > 0)
         {
@@ -416,22 +431,26 @@ public class MenuController : MonoBehaviour
         if (WCurrID == 0)
         {
             WL.GetComponent<Button>().enabled = false;
-            WL.GetComponent<Image>().color = Color.grey;
+            //WL.GetComponent<Image>().color = Color.grey;
+            WL.GetComponent<CanvasGroup>().alpha = 0.3f;
         }
         else
         {
             WL.GetComponent<Button>().enabled = true;
-            WL.GetComponent<Image>().color = Color.black;
+            //WL.GetComponent<Image>().color = Color.black;
+            WL.GetComponent<CanvasGroup>().alpha = 1f;
         }
         if (WCurrID == StaticData.WallSkinsID.Length - 1)
         {
             WR.GetComponent<Button>().enabled = false;
-            WR.GetComponent<Image>().color = Color.grey;
+            //WR.GetComponent<Image>().color = Color.grey;
+            WR.GetComponent<CanvasGroup>().alpha = 0.3f;
         }
         else
         {
             WR.GetComponent<Button>().enabled = true;
-            WR.GetComponent<Image>().color = Color.black;
+            //WR.GetComponent<Image>().color = Color.black;
+            WR.GetComponent<CanvasGroup>().alpha = 1f;
         }
         if (WIDOpened.Count > 0)
         {

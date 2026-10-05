@@ -9,10 +9,11 @@ using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.SceneManagement;
 using TMPro;
 
-public class ArcadeController : MonoBehaviour
+public class ArcadeController : MonoBehaviour, IGameController
 {
     public PlatformController PC;
     public BallController BC;
+    public AdController AC;
 
     public Animation BlurAnim;
     public Animator PauseAnim;
@@ -58,12 +59,14 @@ public class ArcadeController : MonoBehaviour
         }
         for (int i = 0; i < StaticData.WallSkinsID.Length; i++) if (StaticData.WallSkinsID[i] == 2) WallSkin = StaticData.WallSkins[i];
         Wall.transform.GetChild(0).gameObject.GetComponent<MeshRenderer>().material = WallSkin;
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 7; i++)
         {
             int SpawnID = UnityEngine.Random.Range(1,8) * (UnityEngine.Random.value < 0.5f ? -1 : 1);
             if (SpawnID != prevWall) SpawnWall(SpawnID);
             else i--;
         }
+        AC = StaticData.adController;
+        AC.InitGameController(this);
     }
 
     void FixedUpdate()
@@ -72,7 +75,7 @@ public class ArcadeController : MonoBehaviour
         {
             MaxBallPos = Ball.transform.position.y;
             Physics.gravity = new Vector3(Physics.gravity.x, -20 - (MaxBallPos / 10), Physics.gravity.z);
-            if(SpawnPlace.transform.position.y - MaxBallPos < 5)
+            if(SpawnPlace.transform.position.y - MaxBallPos < 12)
             {
                 bool ready = false;
                 while (!ready)
@@ -141,9 +144,18 @@ public class ArcadeController : MonoBehaviour
 
     public void OnOver()
     {
+        PauseBtn.SetActive(false);
         over = true;
         PC.over = true;
-        StartCoroutine(OnOverDelay());
+        if (MaxBallPos > StaticData.Bestscore)
+        {
+            StaticData.Bestscore = MaxBallPos;
+        }
+        if (AC.GetAdTimer() >= 60)
+        {
+            StartCoroutine(AdDelay());
+        }
+        else StartCoroutine(OnOverDelay());
     }
 
     IEnumerator Shake()
@@ -155,9 +167,16 @@ public class ArcadeController : MonoBehaviour
         Physics.gravity = new Vector3(0, Physics.gravity.y, Physics.gravity.z);
     }
 
-    IEnumerator OnOverDelay()
+    public IEnumerator AdDelay()
     {
-        PauseBtn.SetActive(false);
+        yield return new WaitForSecondsRealtime(0.3f);
+        BC.OnFall();
+        yield return new WaitForSecondsRealtime(1f);
+        AC.ShowAd();
+    }
+
+    public IEnumerator OnOverDelay()
+    {
         yield return new WaitForSeconds(0.3f);
         BC.OnFall();
         yield return new WaitForSeconds(0.4f);
@@ -169,7 +188,7 @@ public class ArcadeController : MonoBehaviour
         }
         else
         {
-            StaticData.Bestscore = MaxBallPos;
+            //StaticData.Bestscore = MaxBallPos;
             OverProperty.text = "New Best!";
             yield return new WaitForSeconds(0.6f);
             OverProperty.color = Color.red;
@@ -211,6 +230,7 @@ public class ArcadeController : MonoBehaviour
 
     IEnumerator LoadAsyncScene(string lvl)
     {
+        AC.ClearGameController();
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(lvl.ToString());
         asyncLoad.allowSceneActivation = false;
         TransitionAnim.Play("Close");

@@ -9,10 +9,11 @@ using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.SceneManagement;
 using TMPro;
 
-public class GameController : MonoBehaviour
+public class GameController : MonoBehaviour, IGameController
 {
     public PlatformController PC;
     public BallController BC;
+    public AdController AC;
 
     public Animation BlurAnim;
     public Animator PauseAnim;
@@ -27,9 +28,11 @@ public class GameController : MonoBehaviour
 
     private bool Win = false;
     private bool Lose = false;
+    private bool WinEffectShown = false;
     [HideInInspector]
     public bool over = false;
     public int[] StarsRate;
+    private int stars;
 
     public GameObject Wall;
     public GameObject Ball;
@@ -87,7 +90,8 @@ public class GameController : MonoBehaviour
                 }
             }
         }
-
+        AC = StaticData.adController;
+        AC.InitGameController(this);
     }
 
     void FixedUpdate()
@@ -109,60 +113,89 @@ public class GameController : MonoBehaviour
 
     public void OnWin()
     {
+        PauseBtn.SetActive(false);
         Win = true;
         over = true;
         PC.over = true;
-        StartCoroutine(OnOverDelay("w"));
+        //StartCoroutine(OnOverDelay());
+        //int stars;
+        if (LvlTimer <= StarsRate[0] && LvlTimer >= StarsRate[1])
+        {
+            Sign.text = "Great!";
+            stars = 2;
+        }
+        else if (LvlTimer <= StarsRate[1])
+        {
+            Sign.text = "Perfect!";
+            stars = 3;
+        }
+        else
+        {
+            Sign.text = "Good!";
+            stars = 1;
+        }
+
+        if (StaticData.Levels[int.Parse(SceneManager.GetActiveScene().name) - 1] < stars)
+        {
+            StaticData.Levels[int.Parse(SceneManager.GetActiveScene().name) - 1] = stars;
+        }
+        if (AC.GetAdTimer() >= 60)
+        {
+            StartCoroutine(AdDelay(1f));
+        }
+        else 
+        {
+            StartCoroutine(OnOverDelay());
+        }
         Debug.Log("U Win");
     }
     public void OnLose()
     {
+        PauseBtn.SetActive(false);
         Lose = true;
         over = true;
         PC.over = true;
-        StartCoroutine(OnOverDelay("l"));
+        if(AC.GetAdTimer() >= 60)
+        {
+            StartCoroutine(AdDelay(1f));
+        }
+        else StartCoroutine(OnOverDelay());
         Debug.Log("U Lose");
     }
 
-    IEnumerator OnOverDelay(string state)
+    public IEnumerator AdDelay(float t)
     {
-        if (Win)
-        {
-            int stars;
-            if (LvlTimer <= StarsRate[0] && LvlTimer >= StarsRate[1])
-            {
-                Sign.text = "Great!";
-                stars = 2;
-            }
-            else if (LvlTimer <= StarsRate[1])
-            {
-                Sign.text = "Perfect!";
-                stars = 3;
-            }
-            else
-            {
-                Sign.text = "Good!";
-                stars = 1;
-            }
-
-            if (StaticData.Levels[int.Parse(SceneManager.GetActiveScene().name) - 1] < stars) 
-            {
-                StaticData.Levels[int.Parse(SceneManager.GetActiveScene().name) - 1] = stars; 
-            }
-            StartCoroutine(StarsDelay(stars));
-        }
-        PauseBtn.SetActive(false);
         yield return new WaitForSeconds(0.3f);
         WinDetector.GetComponent<BoxCollider>().enabled = false;
         BC.OnFall();
         yield return new WaitForSeconds(0.4f);
-        if (state == "w")
+        if (Win)
         {
             Instantiate(WinEffect, WinHole.transform.position, Quaternion.identity);
-            yield return new WaitForSeconds(1f);
+            WinEffectShown = true;
+            yield return new WaitForSecondsRealtime(0.7f);
+        }
+        yield return new WaitForSecondsRealtime(t - 0.7f);
+        AC.ShowAd();
+    }
+
+    public IEnumerator OnOverDelay()
+    {
+        StartCoroutine(StarsDelay(stars));
+        yield return new WaitForSeconds(0.3f);
+        WinDetector.GetComponent<BoxCollider>().enabled = false;
+        BC.OnFall();
+        yield return new WaitForSeconds(0.4f);
+        if (Win)
+        {
+            if (!WinEffectShown)
+            {
+                Instantiate(WinEffect, WinHole.transform.position, Quaternion.identity);
+                yield return new WaitForSeconds(1f);
+            }
             BtnPacks[1].SetActive(true);
         }
-        else if(state == "l")
+        else if(Lose)
         {
             Sign.text = "Try again.";
             BtnPacks[0].SetActive(true);
@@ -215,6 +248,7 @@ public class GameController : MonoBehaviour
 
     IEnumerator LoadAsyncScene(string lvl)
     {
+        AC.ClearGameController();
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(lvl.ToString());
         asyncLoad.allowSceneActivation = false;
         TransitionAnim.Play("Close");

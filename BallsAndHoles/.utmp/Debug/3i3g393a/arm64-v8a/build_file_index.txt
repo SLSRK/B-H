@@ -1,0 +1,2 @@
+D:\works\UnityGames\Balls&Holes 6\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\src\main\cpp\CMakeLists.txt
+D:\works\UnityGames\Balls&Holes 6\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\src\main\cpp\FramePacing\CMakeLists.txt

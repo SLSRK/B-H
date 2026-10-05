@@ -24,6 +24,13 @@ public class PlatformController : MonoBehaviour
     public AudioSource Sound1;
     public AudioSource Sound2;
 
+    private void Awake()
+    {
+        Camera camera = MCam.transform.GetChild(0).GetComponent<Camera>();
+        //camera.fieldOfView = 32f;
+        camera.fieldOfView = Camera.HorizontalToVerticalFieldOfView( 32f, camera.aspect);
+    }
+
     private void Start()
     {
         Sound1.enabled = StaticData.Sound;
