@@ -38,12 +38,11 @@ public class GameController : MonoBehaviour, IGameController
     public GameObject Ball;
     public GameObject WinDetector;
     public GameObject WinEffect;
-    public GameObject OverEffect;
     private GameObject WinHole;
 
     public GameObject PausePanel;
     public GameObject PauseBtn;
-    public GameObject[] BtnPacks;
+    public GameObject[] OverBtnPacks;
 
     public GameObject[] Stars;
     public GameObject[] PauseStars;
@@ -193,14 +192,13 @@ public class GameController : MonoBehaviour, IGameController
                 Instantiate(WinEffect, WinHole.transform.position, Quaternion.identity);
                 yield return new WaitForSeconds(1f);
             }
-            BtnPacks[1].SetActive(true);
+            OverBtnPacks[1].SetActive(true);
         }
         else if(Lose)
         {
             Sign.text = "Try again.";
-            BtnPacks[0].SetActive(true);
+            OverBtnPacks[0].SetActive(true);
         }
-        OverEffect.SetActive(true);
         BlurAnim.Play();
 
     }
@@ -278,10 +276,10 @@ public class GameController : MonoBehaviour, IGameController
             {
                 PauseProperty.text = StarsRate[0] + " sec.";
                 PauseStars[2].SetActive(false);
-                PauseStars[0].GetComponent<RectTransform>().anchorMin = new Vector2(0.37f, 0.41f);
-                PauseStars[0].GetComponent<RectTransform>().anchorMax = new Vector2(0.45f, 0.6f);
-                PauseStars[1].GetComponent<RectTransform>().anchorMin = new Vector2(0.29f, 0.41f);
-                PauseStars[1].GetComponent<RectTransform>().anchorMax = new Vector2(0.37f, 0.6f);
+                PauseStars[0].GetComponent<RectTransform>().anchorMin = new Vector2(0.37f, PauseStars[0].GetComponent<RectTransform>().anchorMin.y);
+                PauseStars[0].GetComponent<RectTransform>().anchorMax = new Vector2(0.45f, PauseStars[0].GetComponent<RectTransform>().anchorMax.y);
+                PauseStars[1].GetComponent<RectTransform>().anchorMin = new Vector2(0.29f, PauseStars[1].GetComponent<RectTransform>().anchorMin.y);
+                PauseStars[1].GetComponent<RectTransform>().anchorMax = new Vector2(0.37f, PauseStars[1].GetComponent<RectTransform>().anchorMax.y);
                 Vector2 anchorMin = PauseProperty.rectTransform.anchorMin;
                 anchorMin.x = 0.45f;
                 PauseProperty.rectTransform.anchorMin = anchorMin;

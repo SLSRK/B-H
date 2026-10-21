@@ -1,9 +1,5 @@
 # ninja log v5
-2	247	8021152725932245	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	1e159634de913d72
-248	446	8021152727942988	D:/works/UnityGames/Balls&Holes 6/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/Debug/3i3g393a/obj/armeabi-v7a/libswappywrapper.so	c507577962ccf932
-9	425	8021162104118682	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	1e159634de913d72
-425	693	8021162106676655	D:/works/UnityGames/Balls&Holes 6/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/Debug/3i3g393a/obj/armeabi-v7a/libswappywrapper.so	c507577962ccf932
-3	231	8021164856840100	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	1e159634de913d72
-231	354	8021164858117002	D:/works/UnityGames/Balls&Holes 6/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/Debug/3i3g393a/obj/armeabi-v7a/libswappywrapper.so	c507577962ccf932
 4	165	8021181061459077	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	1e159634de913d72
 165	340	8021181063158246	D:/works/UnityGames/Balls&Holes 6/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/Debug/3i3g393a/obj/armeabi-v7a/libswappywrapper.so	c507577962ccf932
+2	362	8142416354472943	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	1e159634de913d72
+363	667	8142416357431752	D:/works/UnityGames/Balls&Holes 6/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/Debug/3i3g393a/obj/armeabi-v7a/libswappywrapper.so	c507577962ccf932
